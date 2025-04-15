@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.p2p_error.Functions.EncodeForSend
 import com.example.p2p_error.R
 import com.example.p2p_error.Functions.toBinary
 import com.example.p2p_error.pages.inner.CheckBoxes
@@ -34,11 +35,14 @@ fun SendScreen(navController: NavController) {
     val screenHeight = configuration.screenHeightDp //411--412
     val screenWidth = configuration.screenWidthDp //411--412
     val sendingMessage = remember { mutableStateOf("") }
+    val binaryVersion = remember { mutableStateOf("") }
+    val binaryVersionText = remember { mutableStateOf("") }
     val detectionType = remember { mutableIntStateOf(0) }
     val sendingAddress = remember { mutableStateOf("") }
+    var dataToSend = remember { mutableStateOf("") }
 
     Scaffold(floatingActionButton = {
-        FloatingActionButton(onClick = { navController.navigate("ShowPasswords") },
+        FloatingActionButton(onClick = { navController.navigate("RecieveScreen") },
             content = {
                 Icon(
                     painter = painterResource(id = R.drawable.recieve_screen),
@@ -63,10 +67,11 @@ fun SendScreen(navController: NavController) {
                     )
                 }
             )
-            Text("Binary karşılığı:"
-                , modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 10.dp))
             Text(
-                text = toBinary(sendingMessage.value),
+                "Binary karşılığı:", modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 10.dp)
+            )
+            Text(
+                text = toBinary(sendingMessage.value, binaryVersion),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp, 8.dp),
@@ -83,9 +88,18 @@ fun SendScreen(navController: NavController) {
                     )
                 }
             )
-            Button(modifier = Modifier.padding(5.dp), onClick = { /*TODO*/ }) {
+            Button(
+                modifier = Modifier.padding(5.dp),
+                onClick = { dataToSend.value= EncodeForSend(binaryVersion, detectionType, binaryVersionText) }) {
                 Text(text = "Send")
             }
+            Text(
+                text = "Gönderilecek veri\n ${binaryVersionText.value}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 8.dp),
+                textAlign = TextAlign.Center
+            )
         }
 
     }
