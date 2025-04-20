@@ -42,7 +42,7 @@ fun SendScreen(navController: NavController) {
     var dataToSend = remember { mutableStateOf("") }
 
     Scaffold(floatingActionButton = {
-        FloatingActionButton(onClick = { navController.navigate("RecieveScreen") },
+        FloatingActionButton(onClick = { navController.navigate("ReceiveScreen") },
             content = {
                 Icon(
                     painter = painterResource(id = R.drawable.recieve_screen),
