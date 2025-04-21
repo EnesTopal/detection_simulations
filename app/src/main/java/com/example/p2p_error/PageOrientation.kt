@@ -11,7 +11,7 @@ import com.example.p2p_error.pages.SendScreen
 fun PageOrientation(){
     var navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "ReceiveScreen" ){
+    NavHost(navController = navController, startDestination = "SendScreen" ){
         composable("SendScreen") { SendScreen(navController = navController) }
         composable("ReceiveScreen") { ReceiveScreen(navController = navController) }
     }

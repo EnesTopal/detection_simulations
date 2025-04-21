@@ -1,5 +1,6 @@
 package com.example.p2p_error.pages
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,9 +15,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,7 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.p2p_error.Functions.getLocalIpAddress
 import com.example.p2p_error.Functions.DataReceiver
+import com.example.p2p_error.Functions.decodeToString
 import com.example.p2p_error.R
+import com.example.p2p_error.pages.inner.CheckBoxes
 
 @Composable
 fun ReceiveScreen(navController: NavController) {
@@ -35,6 +41,12 @@ fun ReceiveScreen(navController: NavController) {
     val showInfo = remember { mutableStateOf(false) } // Butona basıldığında gösterim
     val serverStatus = remember { mutableStateOf("") } // Sunucu durumu mesajı
     val receivedMessage = remember { mutableStateOf("") } // Gelen mesajı tutacak
+    val detectionType = remember { mutableIntStateOf(0) }
+    val realData = remember { mutableStateOf("") }
+
+    LaunchedEffect(detectionType.value) {
+        realData.value = decodeToString(receivedMessage, detectionType)
+    }
 
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate("SendScreen") },
@@ -50,9 +62,10 @@ fun ReceiveScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            // Socket numarası TextField
             TextField(
                 value = socketNumber.value,
                 onValueChange = { socketNumber.value = it },
@@ -93,6 +106,7 @@ fun ReceiveScreen(navController: NavController) {
                     text = "Gelen Veri: ${receivedMessage.value}",
                     modifier = Modifier.padding(top = 8.dp)
                 )
+
             }
 
             // Sunucu durumu bilgisi
@@ -100,17 +114,33 @@ fun ReceiveScreen(navController: NavController) {
                 text = "Sunucu Durumu: ${serverStatus.value}",
                 modifier = Modifier.padding(top = 8.dp)
             )
+
+            CheckBoxes(detectionType)
+//            realData.value = decodeToString(receivedMessage, detectionType)
+
+            if(realData.value.isNotEmpty()){
+                Text(
+                    text = "Gerçek Veri: ${realData.value}",
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
+
     }
+
 }
 
 // Sunucu başlatma fonksiyonu
-fun startServer(port: Int, serverStatus: MutableState<String>, receivedMessage: MutableState<String>) {
+fun startServer(
+    port: Int,
+    serverStatus: MutableState<String>,
+    receivedMessage: MutableState<String>
+) {
     Thread {
         try {
             val dataReceiver = DataReceiver(port)
             serverStatus.value = "Sunucu başlatılıyor..."
-            dataReceiver.startServer(receivedMessage) // Server başlatılıyor ve gelen veri burada alınacak
+            dataReceiver.startServer(receivedMessage)
             serverStatus.value = "Sunucu çalışıyor: Port $port"
         } catch (e: Exception) {
             serverStatus.value = "Sunucu başlatılamadı: ${e.message}"

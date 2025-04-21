@@ -1,49 +1,55 @@
 package com.example.p2p_error.Functions
 
+import android.util.Log
 import java.net.Socket
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.BufferedWriter
 
-class DataSender(private val serverIp: String, private val port: Int) {
+class DataSender(val serverIp: String, val port: Int) {
     private var socket: Socket? = null
     private var reader: BufferedReader? = null
     private var writer: BufferedWriter? = null
 
-    // Sunucuya veri gönderme
     fun sendData(message: String) {
-        try {
-            socket = Socket(serverIp, port)
-            println("Sunucuya bağlanıldı: $serverIp:$port")
+        Thread {
+            Log.e("Server", "Sending data to ${serverIp}:${port}")
+            try {
+                Log.e("Server", "Entered the try block to send data to the server")
+                socket = Socket(serverIp, port)
+                Log.e("Server", "Connected server: $serverIp:$port")
 
-            reader = BufferedReader(InputStreamReader(socket?.getInputStream()))
-            writer = BufferedWriter(OutputStreamWriter(socket?.getOutputStream()))
+                reader = BufferedReader(InputStreamReader(socket?.getInputStream()))
+                writer = BufferedWriter(OutputStreamWriter(socket?.getOutputStream()))
 
-            // Mesajı gönder
-            writer?.write(message + "\n")
-            writer?.flush()
-            println("Gönderilen veri: $message")
 
-            // Sunucudan gelen cevabı al
-            val response = reader?.readLine()
-            println("Sunucudan gelen cevap: $response")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            closeConnection()
-        }
+                writer?.write(message + "\n")
+                writer?.flush()
+                Log.e("Server", "Sending message: $message")
+
+                val response = reader?.readLine()
+                Log.e("Server", "Response from server: $response")
+            } catch (e: Exception) {
+                Log.e("Server", "Error: ${e.message}")
+                e.printStackTrace()
+            } finally {
+                closeConnection()
+            }
+        }.start()
     }
 
-    // Bağlantıyı kapatma
     fun closeConnection() {
-        try {
-            reader?.close()
-            writer?.close()
-            socket?.close()
-            println("Bağlantı kapatıldı.")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Thread {
+            try {
+                reader?.close()
+                writer?.close()
+                socket?.close()
+                println("Bağlantı kapatıldı.")
+            } catch (e: Exception) {
+                Log.e("Trace", "$e.printStackTrace()")
+//            e.printStackTrace()
+            }
+        }.start()
     }
 }

@@ -52,14 +52,17 @@ class DataReceiver(private val port: Int) {
 
     // Server'ı durdurma
     private fun stopServer() {
-        try {
-            reader?.close()
-            writer?.close()
-            clientSocket?.close()
-            serverSocket?.close()
-            Log.e("Server", "Server kapatıldı.")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Thread {
+            try {
+                reader?.close()
+                writer?.close()
+                clientSocket?.close()
+                serverSocket?.close()
+                Log.e("Server", "Server kapatıldı.")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
+
     }
 }
