@@ -91,13 +91,14 @@ fun SendScreen(navController: NavController) {
                 value = serverIp.value,
                 onValueChange = { serverIp.value = it },
                 label = { Text("Server IP") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
 
             // Server port TextField
             TextField(
                 value = serverPort.value.toString(),
-                onValueChange = { serverPort.value = it.toIntOrNull() ?: 0 },
+                onValueChange = { serverPort.value = it.toIntOrNull() ?: 0},
                 label = { Text("Server Port") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
@@ -106,9 +107,10 @@ fun SendScreen(navController: NavController) {
             Button(
                 modifier = Modifier.padding(5.dp),
                 onClick = {
-                    // Encode for sending data and send it to server
                     dataToSend.value = EncodeForSend(binaryVersion, detectionType, binaryVersionText)
-                    // Using DataSender to send data to server
+
+                    //Detection type ekleniyor testi
+                    dataToSend.value = detectionType.value.toString() + dataToSend.value
 
                     val dataSender = DataSender(serverIp.value, serverPort.value)
                     dataSender.sendData(dataToSend.value)

@@ -1,5 +1,7 @@
 package com.example.p2p_error.pages
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +34,9 @@ import com.example.p2p_error.Functions.DataReceiver
 import com.example.p2p_error.Functions.decodeToString
 import com.example.p2p_error.R
 import com.example.p2p_error.pages.inner.CheckBoxes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReceiveScreen(navController: NavController) {
@@ -43,10 +48,30 @@ fun ReceiveScreen(navController: NavController) {
     val receivedMessage = remember { mutableStateOf("") } // Gelen mesajı tutacak
     val detectionType = remember { mutableIntStateOf(0) }
     val realData = remember { mutableStateOf("") }
+    val errorState = remember { mutableStateOf(false) } // Hata durumu
 
     LaunchedEffect(detectionType.value) {
-        realData.value = decodeToString(receivedMessage, detectionType)
+        if (receivedMessage.value.isNotEmpty()) {
+            realData.value = decodeToString(receivedMessage, detectionType)
+        }
     }
+
+    val lastMessage = remember { mutableStateOf("1")}
+    LaunchedEffect(receivedMessage.value) {
+        Log.e("REC", "${receivedMessage.value}")
+        if (receivedMessage.value.isNotEmpty() && receivedMessage.value != lastMessage.value) {
+            detectionType.value = receivedMessage.value[0].digitToInt()
+            Log.e("REC", "${detectionType.value}")
+            receivedMessage.value = receivedMessage.value.drop(1)
+            lastMessage.value = receivedMessage.value
+            realData.value = decodeToString(receivedMessage, detectionType)
+        }
+    }
+
+
+
+
+
 
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate("SendScreen") },
@@ -82,12 +107,17 @@ fun ReceiveScreen(navController: NavController) {
                     if (socketNumber.value.isNotEmpty()) {
                         showInfo.value = true
                         val port = socketNumber.value.toIntOrNull() ?: 12345
-                        startServer(port, serverStatus, receivedMessage) // Server başlatma işlemi
+                        startServer(port, serverStatus, receivedMessage, errorState) // Server başlatma işlemi
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Başlat")
+            }
+
+            if (errorState.value) {
+                Toast.makeText(context, "Hata: Sunucu başlatılamadı", Toast.LENGTH_SHORT).show()
+                errorState.value = false
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -134,13 +164,14 @@ fun ReceiveScreen(navController: NavController) {
 fun startServer(
     port: Int,
     serverStatus: MutableState<String>,
-    receivedMessage: MutableState<String>
+    receivedMessage: MutableState<String>,
+    errorState: MutableState<Boolean>
 ) {
     Thread {
         try {
             val dataReceiver = DataReceiver(port)
             serverStatus.value = "Sunucu başlatılıyor..."
-            dataReceiver.startServer(receivedMessage)
+            dataReceiver.startServer(receivedMessage, errorState)
             serverStatus.value = "Sunucu çalışıyor: Port $port"
         } catch (e: Exception) {
             serverStatus.value = "Sunucu başlatılamadı: ${e.message}"

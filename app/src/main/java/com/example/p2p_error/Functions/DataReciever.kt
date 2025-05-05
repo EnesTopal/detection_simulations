@@ -1,7 +1,15 @@
 package com.example.p2p_error.Functions
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.net.ServerSocket
 import java.net.Socket
 import java.io.BufferedReader
@@ -9,13 +17,15 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.io.BufferedWriter
 
+
 class DataReceiver(private val port: Int) {
+
     private var serverSocket: ServerSocket? = null
     private var clientSocket: Socket? = null
     private var reader: BufferedReader? = null
     private var writer: BufferedWriter? = null
 
-    fun startServer(receivedMessage: MutableState<String>) {
+    fun startServer(receivedMessage: MutableState<String>, errorState: MutableState<Boolean>) {
         Thread {
             try {
                 // Sunucu başlatılıyor
@@ -43,6 +53,7 @@ class DataReceiver(private val port: Int) {
                     writer?.flush()
                 }
             } catch (e: Exception) {
+                errorState.value = true
                 e.printStackTrace()
             } finally {
                 stopServer()

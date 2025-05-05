@@ -17,31 +17,52 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+//@Composable
+//fun CheckBoxes(detectionType: MutableIntState) {
+//
+//    Row(modifier = Modifier.padding(16.dp,8.dp)) {
+//        listOf("Parity Check", "CRC", "Check Sum").forEachIndexed { index, label ->
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.padding(5.dp)
+//            ) {
+//                Column(modifier = Modifier,
+//                    horizontalAlignment = Alignment.CenterHorizontally) {
+//                    Text(text = label)
+//                    Checkbox(
+//                        checked = detectionType.value == index,
+//                        onCheckedChange = {
+//                            detectionType.value = index
+//                            if (index == 0) {
+//                                detectionType.value = 0
+//                            }
+//                            if (index == 1) {
+//                                detectionType.value = 1
+//                            }
+//                            if (index == 2) {
+//                                detectionType.value = 2
+//                            }
+//                        }
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 @Composable
 fun CheckBoxes(detectionType: MutableIntState) {
-
-    Row(modifier = Modifier.padding(16.dp,8.dp)) {
+    Row(modifier = Modifier.padding(16.dp, 8.dp)) {
         listOf("Parity Check", "CRC", "Check Sum").forEachIndexed { index, label ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(5.dp)
             ) {
-                Column(modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = label)
                     Checkbox(
                         checked = detectionType.value == index,
                         onCheckedChange = {
                             detectionType.value = index
-                            if (index == 0) {
-                                detectionType.value = 0
-                            }
-                            if (index == 1) {
-                                detectionType.value = 1
-                            }
-                            if (index == 2) {
-                                detectionType.value = 2
-                            }
                         }
                     )
                 }
