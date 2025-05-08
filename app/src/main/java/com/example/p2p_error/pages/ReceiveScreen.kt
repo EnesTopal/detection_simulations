@@ -29,14 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.p2p_error.Functions.getLocalIpAddress
 import com.example.p2p_error.Functions.DataReceiver
 import com.example.p2p_error.Functions.decodeToString
+import com.example.p2p_error.Functions.getLocalIpAddress
 import com.example.p2p_error.R
 import com.example.p2p_error.pages.inner.CheckBoxes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReceiveScreen(navController: NavController) {
@@ -67,10 +64,6 @@ fun ReceiveScreen(navController: NavController) {
             realData.value = decodeToString(receivedMessage, detectionType)
         }
     }
-
-
-
-
 
 
     Scaffold(floatingActionButton = {
