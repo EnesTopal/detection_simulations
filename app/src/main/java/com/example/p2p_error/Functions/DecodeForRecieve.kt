@@ -41,30 +41,6 @@ fun convertToText(binaryData: String, detectionType: Int): String {
 
 
 
-
-//fun decodeCRC(binaryData: String, divider: String): String {
-//    val bits = binaryData.split(" ")
-//    var dividend = bits.joinToString("")
-//    var realMessage: String
-//
-//    var remainder = dividend
-//    while (remainder.length >= divider.length) {
-//        if (remainder[0] == '1') {
-//            // XOR işlemi sadece ilk divider.length kadar kısımda yapılmalı
-//            val firstPart = remainder.substring(0, divider.length)
-//            val xorResult = xor(firstPart, divider)
-//            remainder = xorResult + remainder.substring(divider.length)
-//        }
-//        remainder = remainder.substring(1) // Soldan bir karakter at
-//    }
-//    return if (remainder.all { it == '0' }) { // Hepsi sıfır mı kontrolü
-//        realMessage = convertToText(binaryData, 1)
-//        "Veri doğrulandı (CRC)\nGerçek veri: $realMessage"
-//    } else {
-//        "Veri hatalı (CRC)"
-//    }
-//}
-
 fun decodeCRC(binaryData: String, divider: String): String {
     Log.e("CRC", "CRC ${binaryData}")
     val dividend = binaryData.replace(" ", "") // boşlukları kaldır
@@ -130,21 +106,20 @@ fun decodeChecksum(binaryData: String): String {
 
 
 fun decodeParityCheck(binaryData: String): String {
-    // Parity bit kontrolü yapıyoruz.
-    val bits = binaryData.split(" ") // Binary verisi boşluklarla ayrılmış.
+    val bits = binaryData.trim().split(" ")
+    val dataBits = bits.dropLast(1) // Parity bit hariç
+    val parityBit = bits.last()
     var countOnes = 0
-    var realMessage: String
 
-    // Tüm bitleri sayarak '1'lerin sayısını buluyoruz.
-    for (bit in bits) {
-        if (bit == "1") countOnes++
+    for (bit in dataBits) {
+        countOnes += bit.count { it == '1' } // her 8 bitlik parçadaki 1 sayısını say
     }
 
-    // Eğer '1'lerin sayısı çiftse, parity bit'i doğru demektir.
-    return if ((countOnes % 2).toString() == bits.last()) {
-        realMessage = convertToText(binaryData, 0)
-        return  "Veri doğrulandı (Çift Parity) \nGerçek veri: $realMessage"
+    return if ((countOnes % 2).toString() == parityBit) {
+        val realMessage = convertToText(binaryData, 0)
+        "Veri doğrulandı (Çift Parity) \nGerçek veri: $realMessage"
     } else {
-        "Veri hatalı (Tek Parity)"
+        "Veri hatalı (Parity eşleşmedi)"
     }
 }
+
